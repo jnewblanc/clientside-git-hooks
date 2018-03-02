@@ -1,0 +1,79 @@
+#!/bin/sh
+#
+# Git hook wrapper
+#   o Calls individual hook scripts in the corresponding -scripts folder
+#   o All tests to run, even if one fails
+#   o Ability to disable all tests, particular test types, or specific tests
+#
+# One time setup to allow local githooks to be run from the .githooks directory:
+#   git config core.hookspath .githooks
+#
+# Enabling and disabling tests
+#   All tests can be enabled/disabled as follows:
+#     git config --global hooks.disable.all true
+#   All precommit tests can be enabled/disabled as follows:
+#     git config --global hooks.disable.pre-commit true
+#   Individual tests can be enabled/disabled as follows:
+#     git config --global hooks.disable.<onehook> true
+#
+
+DEBUG=false
+hookFailureCount=0
+FAQ_URL="https://github.com/jnewblanc/clientside-git-hooks/blob/master/README.md"
+
+debuglog() {
+  msg=$1
+  if [ "${DEBUG}" = "true" ]; then
+    echo "DEBUG ${msg}"
+  fi
+}
+
+# If hooks.disable.all is set, disable all tests by returning 0
+#   For example: git config --global hooks.disable.all true
+allHooksDisabled=$(git config --bool hooks.disable.all)
+if [ "${allHooksDisabled}" = "true" ]; then
+  debuglog "All hooks have been disabled"
+  exit 0
+fi
+
+# Get the name of the script without the extenstion
+scriptbase=$(basename $0 | sed -e 's/.sh//' -e 's/.rb//')
+
+# If hooks.disable.<this-type> is set, disable all tests by returning 0
+#   For example: git config --global hooks.disable.pre-commit true
+hookTypeDisabled=$(git config --bool hooks.disable.${scriptbase})
+if [ "${hookTypeDisabled}" = "true" ]; then
+  debuglog "Hooks of type ${scriptbase} have been disabled"
+  exit 0
+fi
+
+# Get the full path of the hook script directory
+hookdir=$( cd $(dirname $0); pwd )/${scriptbase}-scripts
+
+# Loop through each of the hooks and execute them.  Allow them each to run,
+#   even if one fails.
+for onehook in $( ls ${hookdir} | grep -v .disabled | grep -v .sample)  ; do
+
+  # Check if this particular test has been disabled
+  oneHookDisabled=$(git config --bool hooks.disable.${onehook})
+  if [ "${oneHookDisabled}" = "true" ]; then
+    echo -e "WARNING: Test ${onehook} is disabled.  Re-enable it by running\n  git config hooks.disable.${onehook} false\n---"
+    continue
+  fi
+
+  debuglog "Calling ${hookdir}/$onehook"
+  ${hookdir}/$onehook
+  exitstatus=$?
+  if [ "${exitstatus}" != "0" ]; then
+    hookFailureCount=$((hookFailureCount+1))
+    debuglog "ERROR: $onehook failed with exit status ${exitstatus}"
+    echo -e "You can disable this test by running the following\n  git config hooks.disable.${onehook} true\n---"
+  fi
+done
+
+# If any of the hook scripts failed, exit with non-zero exit status
+if [ "${hookFailureCount}" != "0" ]; then
+  debuglog "Exiting with failure"
+  echo "Git Hook FAQ: ${FAQ_URL}"
+  exit 1
+fi
