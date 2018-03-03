@@ -1,33 +1,34 @@
 # clientside-git-hooks
-This is a collection of scripts that provide client side git hook functionality
+A collection of scripts to provide client side git hook functionality.
 
-## Git hook wrapper functionality
-* Calls individual hook scripts in the corresponding -scripts folder
-* All tests to run, even if one fails
-* Ability to disable all tests, particular test types, or specific tests
+# How it works
+* Individual client side hook scripts reside in the &lt;wrapper&gt;-scripts directory.  (i.e. clientside-git-hooks/.githooks/pre-commit-scripts).
+* A wrapper script, calls each of the individual git hook scripts in the &lt;wrapper&gt;-scripts directory.  The wrapper provides consistent output and allows for the disabling of tests.  Tests can be disabled or re-enabled by setting git config options.  All enabled hook tests run, even if one fails.
 
-# Requires
-git => 2.9 (core.hookspath does not work with earlier versions)
-
-## How to use - Setup
-
-### One time setup
-* One time setup to allow local githooks to be run from the .githooks directory:
-```git config core.hookspath .githooks
-```
-
-## Enabling and disabling tests
-* All tests can be enabled/disabled as follows:
-```git config --global hooks.disable.all true
-```
-* All precommit tests can be enabled/disabled as follows:
-```git config --global hooks.disable.pre-commit true
-```
-* Individual tests can be enabled/disabled as follows:
-```git config --global hooks.disable.<onehook> true
-```
+## Requires
+* git => 2.9 (core.hookspath does not work with earlier versions)
 
 ## Structure
-* .githooks - main hook directory which contains the wrappers
-* .githooks/<wrapper>-scripts - directory containing individual hook scripts
-* .githooks/tests - Some info on how to test these scripts
+* .githooks - main hook directory which contains the hook wrappers
+* .githooks/&lt;wrapper&gt;-scripts - directory containing individual hook scripts
+* .githooks/tests - Directory for info/scripts to test the hook and wrapper functionality
+
+## Setup: How to use clientside-git-hooks
+
+### Installation
+* clone this repo
+    git clone https://github.com/jnewblanc/clientside-git-hooks
+* copy the .githooks directory to your workspace
+* edit/delete/add hook scripts in the &lt;wrapper&gt;-scripts directory, to suit your needs
+
+### One time configuration
+* The one time setting of the following git config option is required to allow local githooks to be run from the .githooks directory:
+    git config core.hookspath .githooks
+
+### Enabling and disabling tests
+* All tests can be enabled/disabled as follows:
+    git config --global hooks.disable.all true
+* All precommit tests can be enabled/disabled as follows:
+    git config --global hooks.disable.pre-commit true
+* Individual tests can be enabled/disabled as follows:
+    git config --global hooks.disable.<onehook> true
