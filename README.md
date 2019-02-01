@@ -2,8 +2,8 @@
 A collection of scripts to provide client side git hook functionality.
 
 # How it works
-* Individual client side hook scripts reside in the `&lt;wrapper&gt;-scripts` directory.  (i.e. clientside-git-hooks/.githooks/pre-commit-scripts).
-* A wrapper script, calls each of the individual git hook scripts in the `&lt;wrapper&gt;-scripts` directory.  The wrapper provides consistent output and allows for the disabling of tests.  Tests can be disabled or re-enabled by setting git config options.  All enabled hook tests run, even if one fails.
+* Individual client side hook scripts reside in the &lt;wrapper&gt;-scripts directory.  (i.e. clientside-git-hooks/.githooks/pre-commit-scripts).
+* A wrapper script, calls each of the individual git hook scripts in the &lt;wrapper&gt;-scripts directory.  The wrapper provides consistent output and allows for the disabling of tests.  Tests can be disabled or re-enabled by setting git config options.  All enabled hook tests run, even if one fails.
 * Some info about how to test is provided in .githooks/tests 
 
 ## Requires
